@@ -1,0 +1,7 @@
+<resources>
+    <color name="nexa_background">#061016</color>
+    <color name="nexa_surface">#0A1B23</color>
+    <color name="nexa_primary">#00E5FF</color>
+    <color name="nexa_text">#F3FBFF</color>
+    <color name="nexa_muted">#8FAAB2</color>
+</resources>
