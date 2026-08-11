@@ -1,0 +1,41 @@
+name: NEXA Music Android Build
+
+on:
+  push:
+    branches: [ main, nexa-v1, build-fix/androidx-force ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Set up JDK
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: gradle
+      - name: Install Gradle
+        run: |
+          curl -fsSL https://services.gradle.org/distributions/gradle-8.10.2-bin.zip -o /tmp/gradle.zip
+          unzip -q /tmp/gradle.zip -d /opt
+          echo "/opt/gradle-8.10.2/bin" >> "$GITHUB_PATH"
+      - name: Verify checkout and AndroidX
+        run: |
+          echo "Commit: $(git rev-parse HEAD)"
+          test -f gradle.properties
+          grep -q '^android.useAndroidX=true$' gradle.properties
+          echo "AndroidX enabled in checked-out source"
+      - name: Build debug APK
+        env:
+          ANDROID_USE_ANDROIDX: 'true'
+        run: gradle --no-daemon --stacktrace -Pandroid.useAndroidX=true -Pandroid.enableJetifier=true assembleDebug
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: NEXA-Music-debug-apk
+          path: app/build/outputs/apk/debug/*.apk
