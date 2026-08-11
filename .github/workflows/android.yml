@@ -2,7 +2,7 @@ name: NEXA Music Android Build
 
 on:
   push:
-    branches: [ main, nexa-v1 ]
+    branches: [ main, nexa-v1, build-fix/androidx-force ]
   workflow_dispatch:
 
 jobs:
@@ -11,6 +11,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - name: Set up JDK
         uses: actions/setup-java@v5
         with:
@@ -22,13 +24,16 @@ jobs:
           curl -fsSL https://services.gradle.org/distributions/gradle-8.10.2-bin.zip -o /tmp/gradle.zip
           unzip -q /tmp/gradle.zip -d /opt
           echo "/opt/gradle-8.10.2/bin" >> "$GITHUB_PATH"
-      - name: Verify AndroidX configuration
+      - name: Verify checkout and AndroidX
         run: |
+          echo "Commit: $(git rev-parse HEAD)"
           test -f gradle.properties
           grep -q '^android.useAndroidX=true$' gradle.properties
-          echo "AndroidX enabled"
+          echo "AndroidX enabled in checked-out source"
       - name: Build debug APK
-        run: gradle --no-daemon -Pandroid.useAndroidX=true -Pandroid.enableJetifier=true assembleDebug
+        env:
+          ANDROID_USE_ANDROIDX: 'true'
+        run: gradle --no-daemon --stacktrace -Pandroid.useAndroidX=true -Pandroid.enableJetifier=true assembleDebug
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
