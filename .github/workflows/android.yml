@@ -22,8 +22,13 @@ jobs:
           curl -fsSL https://services.gradle.org/distributions/gradle-8.10.2-bin.zip -o /tmp/gradle.zip
           unzip -q /tmp/gradle.zip -d /opt
           echo "/opt/gradle-8.10.2/bin" >> "$GITHUB_PATH"
+      - name: Verify AndroidX configuration
+        run: |
+          test -f gradle.properties
+          grep -q '^android.useAndroidX=true$' gradle.properties
+          echo "AndroidX enabled"
       - name: Build debug APK
-        run: gradle --no-daemon assembleDebug
+        run: gradle --no-daemon -Pandroid.useAndroidX=true -Pandroid.enableJetifier=true assembleDebug
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
