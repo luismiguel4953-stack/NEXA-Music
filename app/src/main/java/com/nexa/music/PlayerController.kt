@@ -13,12 +13,11 @@ class PlayerController(private val context: Context) {
 
     fun play(track: Track) {
         player?.release()
-        player = MediaPlayer.create(context, Uri.parse(track.uri))?.apply {
-            setOnCompletionListener { isPlaying = false }
-            start()
-        }
+        val preparedPlayer = MediaPlayer.create(context, Uri.parse(track.uri))
+        player = preparedPlayer
         current = track
-        isPlaying = player != null
+        isPlaying = preparedPlayer != null
+        preparedPlayer?.setOnCompletionListener { isPlaying = false }
     }
 
     fun pause() {
@@ -27,8 +26,10 @@ class PlayerController(private val context: Context) {
     }
 
     fun resume() {
-        player?.start()
-        isPlaying = true
+        player?.let {
+            if (!it.isPlaying) it.start()
+            isPlaying = true
+        }
     }
 
     fun stop() {
@@ -39,5 +40,9 @@ class PlayerController(private val context: Context) {
         isPlaying = false
     }
 
-    fun release() { player?.release(); player = null }
+    fun release() {
+        player?.release()
+        player = null
+        isPlaying = false
+    }
 }
