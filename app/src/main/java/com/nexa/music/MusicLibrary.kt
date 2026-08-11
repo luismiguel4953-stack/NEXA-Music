@@ -13,8 +13,7 @@ object MusicLibrary {
             MediaStore.Audio.Media.TITLE,
             MediaStore.Audio.Media.ARTIST,
             MediaStore.Audio.Media.ALBUM,
-            MediaStore.Audio.Media.DURATION,
-            MediaStore.Audio.Media.CONTENT_URI.toString()
+            MediaStore.Audio.Media.DURATION
         )
         val selection = "${MediaStore.Audio.Media.IS_MUSIC} != 0"
         contentResolver.query(
@@ -37,7 +36,7 @@ object MusicLibrary {
                     cursor.getString(artist) ?: "Artista desconocido",
                     cursor.getString(album) ?: "Álbum desconocido",
                     cursor.getLong(duration),
-                    "content://media/external/audio/media/$trackId"
+                    "${MediaStore.Audio.Media.EXTERNAL_CONTENT_URI}/$trackId"
                 )
             }
         }
